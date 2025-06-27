@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Traffic Volume Estimation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2em;
+      background-color: #f4f4f4;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, select, button {
+      padding: 10px;
+      width: 100%;
+      margin: 10px 0;
+      box-sizing: border-box;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Traffic Volume Estimator</h2>
+    <form id="trafficForm">
+      <label for="location">Location:</label>
+      <input type="text" id="location" required>
+
+      <label for="datetime">Date and Time:</label>
+      <input type="datetime-local" id="datetime" required>
+
+      <label for="weather">Weather Conditions:</label>
+      <select id="weather">
+        <option value="Clear">Clear</option>
+        <option value="Rain">Rain</option>
+        <option value="Snow">Snow</option>
+        <option value="Fog">Fog</option>
+      </select>
+
+      <button type="submit">Estimate Traffic Volume</button>
+    </form>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    document.getElementById('trafficForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Simulate ML Prediction (in real app, call backend ML API here)
+      const location = document.getElementById('location').value;
+      const datetime = document.getElementById('datetime').value;
+      const weather = document.getElementById('weather').value;
+
+      // Simple simulated prediction logic (to be replaced with actual ML model)
+      let baseVolume = 500;
+      if (weather === 'Rain') baseVolume *= 0.8;
+      else if (weather === 'Snow') baseVolume *= 0.6;
+      else if (weather === 'Fog') baseVolume *= 0.7;
+
+      const estimatedVolume = Math.floor(baseVolume + Math.random() * 200);
+      document.getElementById('result').innerText = 
+        `Estimated Traffic Volume at ${location} on ${new Date(datetime).toLocaleString()}: ${estimatedVolume} vehicles/hour.`;
+    });
+  </script>
+</body>
+</html>
