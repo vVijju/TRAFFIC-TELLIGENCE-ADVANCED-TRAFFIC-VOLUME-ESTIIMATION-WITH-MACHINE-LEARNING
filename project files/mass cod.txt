@@ -1,0 +1,64 @@
+import numpy as np
+import pandas as pd
+import joblib
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error
+import cv2
+import os
+
+# === Configuration ===
+MODEL_PATH = "models/traffic_volume_model.pkl"
+DATA_PATH = "data/traffic_data.csv"  # Replace with your actual data source
+USE_VIDEO = False  # Toggle if using camera feed
+
+# === Load and Preprocess Data ===
+def load_data(data_path):
+    df = pd.read_csv(data_path)
+    df = df.dropna()
+    X = df.drop("volume", axis=1)
+    y = df["volume"]
+    return train_test_split(X, y, test_size=0.2, random_state=42)
+
+# === Train Model ===
+def train_model(X_train, y_train):
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model.fit(X_train, y_train)
+    joblib.dump(model, MODEL_PATH)
+    print(f"Model saved to {MODEL_PATH}")
+    return model
+
+# === Evaluate Model ===
+def evaluate_model(model, X_test, y_test):
+    predictions = model.predict(X_test)
+    mae = mean_absolute_error(y_test, predictions)
+    print(f"Mean Absolute Error: {mae:.2f}")
+    return predictions
+
+# === Predict from Live Feed (optional) ===
+def predict_from_video(model):
+    cap = cv2.VideoCapture(0)  # Use 0 or your video file path
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+        # Placeholder: Replace with real detection logic
+        dummy_features = np.random.rand(1, model.n_features_in_)  # Replace with real features
+        prediction = model.predict(dummy_features)[0]
+        cv2.putText(frame, f"Estimated Volume: {int(prediction)}", (20, 40), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.imshow("Traffic Volume Estimation", frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    cap.release()
+    cv2.destroyAllWindows()
+
+# === Main Workflow ===
+if __name__ == "__main__":
+    if not os.path.exists(MODEL_PATH):
+        X_train, X_test, y_train, y_test = load_data(DATA_PATH)
+        model = train_model(X_train, y_train)
+        evaluate_model(model, X_test, y_test)
+    else:
+        model = joblib.load(MODEL_PATH)
+        print("Model loaded from disk.")
